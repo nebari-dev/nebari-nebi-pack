@@ -66,6 +66,8 @@ image:
   tag: sha-be3187c
   pullPolicy: IfNotPresent
 
+imagePullSecrets: []
+
 replicaCount: 1
 
 # Deployment strategy – Recreate avoids Multi-Attach errors on RWO volumes
@@ -166,6 +168,11 @@ postgres:
     repository: postgres
     tag: "16"
     pullPolicy: IfNotPresent
+  automountServiceAccountToken: false
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext: {}
   storage:
     size: 10Gi
     storageClassName: ""  # Leave empty to use cluster default
@@ -178,6 +185,35 @@ service:
   type: ClusterIP
   port: 80
   targetPort: 8460
+
+# =============================================================================
+# Network Policy
+# =============================================================================
+networkPolicy:
+  enabled: true
+  app:
+    # Keep HTTP(S) egress available for Pixi/OIDC while blocking link-local,
+    # private, and shared-address ranges by default. Add extraEgress entries for
+    # private package mirrors or externally managed databases.
+    allowExternalHTTP: true
+    externalHTTPPorts:
+      - 80
+      - 443
+    blockedCIDRs:
+      - 10.0.0.0/8
+      - 100.64.0.0/10
+      - 127.0.0.0/8
+      - 169.254.0.0/16
+      - 172.16.0.0/12
+      - 192.168.0.0/16
+    allowClusterHTTP: true
+    clusterHTTPPorts:
+      - 8080
+    extraIngress: []
+    extraEgress: []
+  postgres:
+    extraIngress: []
+    extraEgress: []
 
 # =============================================================================
 # Resources
@@ -197,6 +233,21 @@ serviceAccount:
   create: true
   name: ""
   annotations: {}
+  automountServiceAccountToken: false
+
+# =============================================================================
+# Pod Security
+# =============================================================================
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
 
 # =============================================================================
 # Overrides

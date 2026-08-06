@@ -129,6 +129,38 @@ log:
 queue:
   type: memory
 
+# =============================================================================
+# Build sandbox
+# =============================================================================
+# Environment builds run package code (pixi solve/install), which is
+# untrusted: a manifest can declare source or build backends that execute
+# arbitrary commands. Nebi always strips secrets from the build environment
+# and, on Linux, confines the build to its own workspace directory using
+# Landlock.
+#
+# Every key here is optional. Leaving one empty omits its environment
+# variable entirely, so nebi applies its own default: strict when running in
+# team mode, off in local/desktop mode. Set them only to override that.
+sandbox:
+  # strict     - fail the build if the kernel cannot confine it
+  # permissive - warn and run the build unconfined when it cannot confine
+  # off        - no confinement (the environment allowlist still applies)
+  #
+  # Set this to "permissive" or "off" if builds fail on a host whose kernel
+  # predates Landlock (Linux 5.13, or 5.19 for the cross-directory renames
+  # package managers need).
+  mode: ""
+
+  # TCP ports build code may connect to, e.g. [80, 443]. An empty list here
+  # leaves nebi's default in place; to deny all outbound TCP instead, that
+  # must be expressed in nebi's own config file rather than this variable.
+  # Requires Linux 6.7+; ignored with a warning on older kernels.
+  allowedPorts: []
+
+  # Wall-clock ceiling for a single build job, as a Go duration (e.g. "30m").
+  # Must be at least 1s.
+  buildTimeout: ""
+
 # Storage for workspace environments
 persistence:
   enabled: true

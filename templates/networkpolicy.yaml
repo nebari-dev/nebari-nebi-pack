@@ -1,4 +1,11 @@
 {{- if .Values.networkPolicy.enabled }}
+{{- $appNetworkPolicy := .Values.networkPolicy.app -}}
+{{- $hasAppDNS := $appNetworkPolicy.dns.enabled -}}
+{{- $hasAppPostgresEgress := .Values.postgres.enabled -}}
+{{- $hasAppClusterHTTP := and $appNetworkPolicy.allowClusterHTTP $appNetworkPolicy.clusterHTTPNamespaces $appNetworkPolicy.clusterHTTPPorts -}}
+{{- $hasAppExternalHTTP := and $appNetworkPolicy.allowExternalHTTP $appNetworkPolicy.externalHTTPPorts -}}
+{{- $hasAppExtraEgress := $appNetworkPolicy.extraEgress -}}
+{{- $hasAppEgress := or $hasAppDNS $hasAppPostgresEgress $hasAppClusterHTTP $hasAppExternalHTTP $hasAppExtraEgress -}}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -20,12 +27,24 @@ spec:
     {{- with .Values.networkPolicy.app.extraIngress }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
+  {{- if $hasAppEgress }}
   egress:
+    {{- if $hasAppDNS }}
     - ports:
         - protocol: UDP
           port: 53
         - protocol: TCP
           port: 53
+      to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ $appNetworkPolicy.dns.namespace | quote }}
+          {{- with $appNetworkPolicy.dns.podLabels }}
+          podSelector:
+            matchLabels:
+              {{- toYaml . | nindent 14 }}
+          {{- end }}
+    {{- end }}
     {{- if .Values.postgres.enabled }}
     - to:
         - podSelector:
@@ -35,32 +54,39 @@ spec:
         - protocol: TCP
           port: 5432
     {{- end }}
-    {{- if .Values.networkPolicy.app.allowClusterHTTP }}
+    {{- if $hasAppClusterHTTP }}
     - to:
-        - namespaceSelector: {}
+        {{- range $appNetworkPolicy.clusterHTTPNamespaces }}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ . | quote }}
+        {{- end }}
       ports:
-        {{- range .Values.networkPolicy.app.clusterHTTPPorts }}
+        {{- range $appNetworkPolicy.clusterHTTPPorts }}
         - protocol: TCP
           port: {{ . }}
         {{- end }}
     {{- end }}
-    {{- if .Values.networkPolicy.app.allowExternalHTTP }}
+    {{- if $hasAppExternalHTTP }}
     - to:
         - ipBlock:
             cidr: 0.0.0.0/0
-            {{- with .Values.networkPolicy.app.blockedCIDRs }}
+            {{- with $appNetworkPolicy.blockedCIDRs }}
             except:
               {{- toYaml . | nindent 14 }}
             {{- end }}
       ports:
-        {{- range .Values.networkPolicy.app.externalHTTPPorts }}
+        {{- range $appNetworkPolicy.externalHTTPPorts }}
         - protocol: TCP
           port: {{ . }}
         {{- end }}
     {{- end }}
-    {{- with .Values.networkPolicy.app.extraEgress }}
+    {{- with $appNetworkPolicy.extraEgress }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
+  {{- else }}
+  egress: []
+  {{- end }}
 {{- if .Values.postgres.enabled }}
 ---
 apiVersion: networking.k8s.io/v1

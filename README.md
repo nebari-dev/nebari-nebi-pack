@@ -22,3 +22,17 @@ helm install nebi oci://quay.io/nebari/charts/nebari-nebi-pack --version <versio
 > `https://nebari-dev.github.io/nebari-nebi-pack` is frozen; releases packaged
 > there before the cutover remain installable from it, but new versions land
 > only in the central repository.
+
+## Network Policy Notes
+
+The chart enables `networkPolicy.enabled` by default. On upgrade, this may block
+deployments that rely on private egress, such as private package mirrors,
+externally managed databases, or Keycloak behind a private ingress load balancer.
+Add explicit `networkPolicy.app.extraEgress` rules for those destinations, or
+temporarily set `networkPolicy.enabled=false` while migrating.
+
+By default, in-cluster HTTP egress is limited to the `keycloak` namespace on
+port `8080`, matching the default `keycloak.serviceHost`. If
+`keycloak.hostname` is set and resolves to a private ingress address, that
+address falls inside the default blocked private CIDR ranges; add an
+`extraEgress` entry for that address or prefer the in-cluster discovery URL.

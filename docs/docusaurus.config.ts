@@ -8,10 +8,10 @@ const config: Config = {
   favicon: 'img/favicon.ico',
 
   url: 'https://nebari-dev.github.io',
-  baseUrl: '/nebari-nebi-pack/',
+  baseUrl: '/nebi-pack/',
 
   organizationName: 'nebari-dev',
-  projectName: 'nebari-nebi-pack',
+  projectName: 'nebi-pack',
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -45,7 +45,7 @@ const config: Config = {
           sidebarCollapsible: true,
           showLastUpdateTime: true,
           editUrl:
-            'https://github.com/nebari-dev/nebari-nebi-pack/edit/main/docs/docs/',
+            'https://github.com/nebari-dev/nebi-pack/edit/main/docs/docs/',
         },
         blog: false,
         theme: {
@@ -75,7 +75,7 @@ const config: Config = {
       },
       items: [
         {
-          href: 'https://github.com/nebari-dev/nebari-nebi-pack',
+          href: 'https://github.com/nebari-dev/nebi-pack',
           label: 'GitHub',
           position: 'right',
         },
@@ -89,7 +89,7 @@ const config: Config = {
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/nebari-dev/nebari-nebi-pack',
+              href: 'https://github.com/nebari-dev/nebi-pack',
             },
             {
               label: 'Nebari',

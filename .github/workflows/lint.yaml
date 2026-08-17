@@ -23,3 +23,47 @@ jobs:
 
       - name: Helm template (with NebariApp)
         run: helm template test . --set nebariapp.hostname=nebi.example.com
+
+      # Branding is off by default, so the templates above never exercise the
+      # ConfigMap / volume / checksum path. Render it explicitly and assert the
+      # rendered config.json is valid JSON in the shape the SPA expects.
+      - name: Helm template (with branding)
+        run: |
+          python3 -c 'import yaml' 2>/dev/null \
+            || pip3 install --quiet pyyaml --break-system-packages
+          helm template test . \
+            --set nebariapp.hostname=nebi.example.com \
+            --set branding.title="Acme Environments" \
+            --set branding.logoUrl=/assets/acme-logo.svg \
+            --set branding.theme.light.primary="#0f62fe" \
+            --set branding.theme.dark.primary="#78a9ff" > /tmp/branded.yaml
+          python3 - <<'PY'
+          import json, yaml
+          docs = [d for d in yaml.safe_load_all(open('/tmp/branded.yaml')) if d]
+          cm = next(d for d in docs
+                    if d['kind'] == 'ConfigMap'
+                    and d['metadata']['name'].endswith('-branding'))
+          branding = json.loads(cm['data']['config.json'])['branding']
+          assert branding['title'] == 'Acme Environments', branding
+          assert branding['theme']['light']['primary'] == '#0f62fe', branding
+          dep = next(d for d in docs
+                     if d['kind'] == 'Deployment'
+                     and d['metadata']['name'] == 'test-nebari-nebi-pack')
+          pod = dep['spec']['template']
+          assert 'checksum/config' in pod['metadata']['annotations'], pod['metadata']
+          mount = next(m for m in pod['spec']['containers'][0]['volumeMounts']
+                       if m['name'] == 'branding-config')
+          # subPath mounts are never refreshed by kubelet - keep this a dir mount.
+          assert 'subPath' not in mount, mount
+          print('branding render OK')
+          PY
+
+      # An unset branding block must not change the rendered output at all.
+      - name: Helm template (branding is a no-op by default)
+        run: |
+          helm template test . --set nebariapp.hostname=nebi.example.com > /tmp/default.yaml
+          if grep -q 'branding' /tmp/default.yaml; then
+            echo "branding leaked into the default render"
+            exit 1
+          fi
+          echo "default render contains no branding resources"

@@ -31,6 +31,7 @@ The Nebi UI can be rebranded at deploy time — no image rebuild:
 branding:
   title: "Acme Environments"
   logoUrl: "/assets/acme-logo.svg"     # same-origin path or base64 data: URI
+  logoUrlDark: "/assets/acme-logo-dark.svg"  # optional dark-mode variant
   faviconUrl: "/assets/acme-favicon.ico"
   theme:
     light:
@@ -46,6 +47,9 @@ containing `config.json`, mounts it at `/etc/nebi/branding`, and sets
 the UI applies it before it mounts. The Deployment carries a `checksum/config`
 annotation over the ConfigMap, so editing branding rolls the pods instead of
 appearing to sync with no visible effect.
+
+`logoUrlDark` is optional: dark mode falls back to `logoUrl` when it is unset,
+so a single-logo install behaves exactly as before.
 
 With every field empty (the default) nothing is rendered and `helm template`
 output is unchanged. See the `branding` block in `values.yaml` for the full list

@@ -80,7 +80,7 @@ mount, the env var and the checksum annotation all appear or vanish together.
 {{- define "nebari-nebi-pack.brandingEnabled" -}}
 {{- $branding := .Values.branding | default dict -}}
 {{- $theme := $branding.theme | default dict -}}
-{{- if or $branding.title $branding.logoUrl $branding.faviconUrl $theme.light $theme.dark -}}
+{{- if or $branding.title $branding.logoUrl $branding.logoUrlDark $branding.faviconUrl $theme.light $theme.dark -}}
 true
 {{- end -}}
 {{- end }}

@@ -3,6 +3,7 @@
 {{- $branding := dict }}
 {{- with $values.title }}{{ $_ := set $branding "title" (toString .) }}{{ end }}
 {{- with $values.logoUrl }}{{ $_ := set $branding "logoUrl" (toString .) }}{{ end }}
+{{- with $values.logoUrlDark }}{{ $_ := set $branding "logoUrlDark" (toString .) }}{{ end }}
 {{- with $values.faviconUrl }}{{ $_ := set $branding "faviconUrl" (toString .) }}{{ end }}
 {{- $theme := dict }}
 {{- range $scheme := list "light" "dark" }}

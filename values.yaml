@@ -161,9 +161,19 @@ branding:
   # Logo shown in the UI header. Must be same-origin: a root-relative path
   # (e.g. /assets/acme-logo.svg) or a base64 data: URI of an image type
   # (png/jpeg/svg+xml/webp/gif/x-icon). External http(s) URLs are rejected by
-  # the frontend. Empty uses the built-in Nebi logo (which already switches
-  # between light and dark variants; a custom logo is used for both).
+  # the frontend. Empty uses the built-in Nebi logo, which already switches
+  # between light and dark variants.
   logoUrl: ""
+  # Optional dark-mode variant of the logo, same URL rules as logoUrl. Dark mode
+  # resolves to logoUrlDark, falling back to logoUrl, then to the built-in dark
+  # logo; light mode always uses logoUrl. Set only logoUrl to reuse one asset in
+  # both schemes (the behaviour before this field existed).
+  #
+  # Needs nebi >= the release containing logoUrlDark support (nebari-dev/nebi
+  # PR 516) - the pinned image tag above predates it. On an older image the key
+  # is simply ignored and dark mode keeps using logoUrl, so setting it early is
+  # harmless but has no effect until the image is bumped.
+  logoUrlDark: ""
   # Favicon, same URL rules as logoUrl. Empty uses the built-in favicon.
   faviconUrl: ""
   # CSS custom-property overrides applied at runtime, per color scheme.

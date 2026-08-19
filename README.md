@@ -54,3 +54,16 @@ so a single-logo install behaves exactly as before.
 With every field empty (the default) nothing is rendered and `helm template`
 output is unchanged. See the `branding` block in `values.yaml` for the full list
 of overridable theme tokens and the value restrictions.
+
+## Development
+
+Chart render tests live in `tests/` and run `helm template` against the chart,
+asserting on the rendered manifests. They need `helm` and [uv]; no cluster:
+
+```bash
+make test        # or: uv run pytest
+```
+
+CI runs them as the `chart` job in `.github/workflows/test.yaml`.
+
+[uv]: https://docs.astral.sh/uv/

@@ -1,7 +1,7 @@
 # Minimal Makefile for local development
-# Only two commands needed - Tilt handles everything else via its UI
+# Tilt handles the dev loop via its UI; `make test` runs the chart render tests
 
-.PHONY: up down
+.PHONY: up down test
 
 # Start local development environment
 # - ctlptl apply is idempotent (creates cluster only if not exists)
@@ -15,3 +15,7 @@ down:
 	-tilt down
 	-pkill -f "tilt up" 2>/dev/null || true
 	ctlptl delete -f ctlptl-config.yaml
+
+# Run the chart render tests (helm template + assertions in tests/)
+test:
+	uv run pytest

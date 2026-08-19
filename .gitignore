@@ -5,6 +5,11 @@ charts/
 tilt_modules/
 .DS_Store
 
+# Python / uv
+.venv/
+__pycache__/
+.pytest_cache/
+
 # Docs (Docusaurus)
 docs/node_modules/
 docs/build/

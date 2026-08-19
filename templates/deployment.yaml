@@ -87,6 +87,24 @@ spec:
             # Storage
             - name: NEBI_STORAGE_WORKSPACES_DIR
               value: {{ .Values.persistence.mountPath | quote }}
+            {{- /*
+            Build sandbox. Each key is emitted only when set, so nebi keeps
+            applying its own defaults (strict in team mode) when this block is
+            left alone, and the rendered output is unchanged for deployers who
+            do not use it.
+            */}}
+            {{- with .Values.sandbox.mode }}
+            - name: NEBI_SANDBOX_MODE
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.sandbox.allowedPorts }}
+            - name: NEBI_SANDBOX_ALLOWED_PORTS
+              value: {{ join "," . | quote }}
+            {{- end }}
+            {{- with .Values.sandbox.buildTimeout }}
+            - name: NEBI_SANDBOX_BUILD_TIMEOUT
+              value: {{ . | quote }}
+            {{- end }}
             {{- with .Values.orgCABundle.configMapName }}
             # TLS trust — points OpenSSL and Rust's rustls-native-certs at
             # the org CA bundle mounted below.

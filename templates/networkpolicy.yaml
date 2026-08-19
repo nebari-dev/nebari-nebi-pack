@@ -1,0 +1,125 @@
+{{- if .Values.networkPolicy.enabled }}
+{{- $appNetworkPolicy := .Values.networkPolicy.app -}}
+{{- $hasAppDNS := $appNetworkPolicy.dns.enabled -}}
+{{- $hasAppPostgresEgress := .Values.postgres.enabled -}}
+{{- $hasAppClusterHTTP := and $appNetworkPolicy.allowClusterHTTP $appNetworkPolicy.clusterHTTPNamespaces $appNetworkPolicy.clusterHTTPPorts -}}
+{{- $hasAppExternalHTTP := and $appNetworkPolicy.allowExternalHTTP $appNetworkPolicy.externalHTTPPorts -}}
+{{- $hasAppExtraEgress := $appNetworkPolicy.extraEgress -}}
+{{- $hasAppEgress := or $hasAppDNS $hasAppPostgresEgress $hasAppClusterHTTP $hasAppExternalHTTP $hasAppExtraEgress -}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "nebari-nebi-pack.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "nebari-nebi-pack.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "nebari-nebi-pack.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: {{ .Values.server.port }}
+    {{- with .Values.networkPolicy.app.extraIngress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- if $hasAppEgress }}
+  egress:
+    {{- if $hasAppDNS }}
+    - ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+      to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ $appNetworkPolicy.dns.namespace | quote }}
+          {{- with $appNetworkPolicy.dns.podLabels }}
+          podSelector:
+            matchLabels:
+              {{- toYaml . | nindent 14 }}
+          {{- end }}
+    {{- end }}
+    {{- if .Values.postgres.enabled }}
+    - to:
+        - podSelector:
+            matchLabels:
+              {{- include "nebari-nebi-pack.postgresSelectorLabels" . | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: 5432
+    {{- end }}
+    {{- if $hasAppClusterHTTP }}
+    - to:
+        {{- range $appNetworkPolicy.clusterHTTPNamespaces }}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ . | quote }}
+        {{- end }}
+      ports:
+        {{- range $appNetworkPolicy.clusterHTTPPorts }}
+        - protocol: TCP
+          port: {{ . }}
+        {{- end }}
+    {{- end }}
+    {{- if $hasAppExternalHTTP }}
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            {{- with $appNetworkPolicy.blockedCIDRs }}
+            except:
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
+      ports:
+        {{- range $appNetworkPolicy.externalHTTPPorts }}
+        - protocol: TCP
+          port: {{ . }}
+        {{- end }}
+    {{- end }}
+    {{- with $appNetworkPolicy.extraEgress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- else }}
+  egress: []
+  {{- end }}
+{{- if .Values.postgres.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "nebari-nebi-pack.fullname" . }}-postgres
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "nebari-nebi-pack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "nebari-nebi-pack.postgresSelectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "nebari-nebi-pack.selectorLabels" . | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: 5432
+    {{- with .Values.networkPolicy.postgres.extraIngress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.networkPolicy.postgres.extraEgress }}
+  egress:
+    {{- toYaml . | nindent 4 }}
+  {{- else }}
+  egress: []
+  {{- end }}
+{{- end }}
+{{- end }}

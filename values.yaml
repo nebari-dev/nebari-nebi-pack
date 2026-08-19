@@ -66,6 +66,8 @@ image:
   tag: sha-be3187c
   pullPolicy: IfNotPresent
 
+imagePullSecrets: []
+
 replicaCount: 1
 
 # Deployment strategy – Recreate avoids Multi-Attach errors on RWO volumes
@@ -158,6 +160,23 @@ orgCABundle:
   configMapName: ""
 
 # =============================================================================
+# Secret Init Hook
+# =============================================================================
+secretInit:
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  # The hook runs kubectl with a short shell script and needs a writable rootfs
+  # for broad image compatibility; it still drops capabilities and cannot
+  # escalate privileges.
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+
+# =============================================================================
 # Embedded PostgreSQL
 # =============================================================================
 postgres:
@@ -166,6 +185,13 @@ postgres:
     repository: postgres
     tag: "16"
     pullPolicy: IfNotPresent
+  automountServiceAccountToken: false
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  # The official Postgres image manages its own runtime user and data directory
+  # ownership, so container-level security settings are left opt-in.
+  securityContext: {}
   storage:
     size: 10Gi
     storageClassName: ""  # Leave empty to use cluster default
@@ -180,12 +206,55 @@ service:
   targetPort: 8460
 
 # =============================================================================
+# Network Policy
+# =============================================================================
+networkPolicy:
+  enabled: true
+  app:
+    dns:
+      enabled: true
+      namespace: kube-system
+      podLabels:
+        k8s-app: kube-dns
+    # Keep HTTPS egress available for Pixi/OIDC while blocking link-local,
+    # private, and shared-address ranges by default. Add extraEgress entries for
+    # private package mirrors, private ingress LBs, or externally managed DBs.
+    # IPv6 egress fails closed unless explicit IPv6 rules are added; if allowing
+    # IPv6, also block link-local, ULA, and metadata endpoint ranges.
+    allowExternalHTTP: true
+    externalHTTPPorts:
+      - 443
+    blockedCIDRs:
+      - 10.0.0.0/8
+      - 100.64.0.0/10
+      - 127.0.0.0/8
+      - 169.254.0.0/16
+      - 172.16.0.0/12
+      - 192.168.0.0/16
+    # Only the in-cluster Keycloak discovery endpoint needs HTTP by default.
+    # If keycloak.serviceHost points to a different namespace, update this list.
+    allowClusterHTTP: true
+    clusterHTTPNamespaces:
+      - keycloak
+    clusterHTTPPorts:
+      - 8080
+    extraIngress: []
+    extraEgress: []
+  postgres:
+    extraIngress: []
+    extraEgress: []
+
+# =============================================================================
 # Resources
 # =============================================================================
+# Nebi currently runs package/build work in the app pod. Keep defaults unset for
+# compatibility, but production installs should set CPU, memory, and ephemeral
+# storage limits until upstream per-build sandboxes exist.
 resources: {}
   # limits:
   #   cpu: 1000m
   #   memory: 1Gi
+  #   ephemeral-storage: 10Gi
   # requests:
   #   cpu: 250m
   #   memory: 256Mi
@@ -197,6 +266,25 @@ serviceAccount:
   create: true
   name: ""
   annotations: {}
+  automountServiceAccountToken: false
+
+# =============================================================================
+# Pod Security
+# =============================================================================
+# runAsNonRoot is not forced yet because the current Nebi image is based on the
+# Pixi image and still expects writable paths during environment operations.
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  # Pixi writes environments and package caches at runtime, so read-only rootfs
+  # stays opt-in until the image has dedicated writable mounts for those paths.
+  readOnlyRootFilesystem: false
 
 # =============================================================================
 # Overrides

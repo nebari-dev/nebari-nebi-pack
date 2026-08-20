@@ -52,8 +52,35 @@ appearing to sync with no visible effect.
 so a single-logo install behaves exactly as before.
 
 With every field empty (the default) nothing is rendered and `helm template`
-output is unchanged. See the `branding` block in `values.yaml` for the full list
-of overridable theme tokens and the value restrictions.
+output is unchanged. Full reference — theme tokens, URL and value restrictions,
+image requirements, and how to verify a deploy — in the
+[Branding docs](https://packs.nebari.dev/nebi-pack/branding/); the `branding`
+block in `values.yaml` carries the same detail inline.
+
+## Documentation
+
+The docs site lives in `docs/` and is built with [Astro](https://astro.build) + [Starlight](https://starlight.astro.build). It deploys automatically to [packs.nebari.dev/nebi-pack/](https://packs.nebari.dev/nebi-pack/) on every merge to `main`. Pull requests get a preview URL posted as a PR comment.
+
+### Running locally
+
+```bash
+make docs           # start dev server at http://localhost:4321
+make docs-build     # build to docs/dist/
+make docs-preview   # serve the production build locally
+make docs-test      # run unit tests
+```
+
+### Adding or editing content
+
+Content lives in `docs/src/content/docs/`. Each `.md` or `.mdx` file becomes a page. The sidebar is configured in `docs/astro.config.mjs` under `starlight.sidebar`.
+
+### Updating the shared theme
+
+Nebari branding (colors, fonts, logo, favicon, footer) comes from the [`@nebari/starlight`](https://github.com/nebari-dev/starlight) plugin, not vendored files. To pick up a theme update, bump the version in `docs/package.json`:
+
+```bash
+cd docs && nix-shell --run "npm install @nebari/starlight@latest"
+```
 
 ## Development
 

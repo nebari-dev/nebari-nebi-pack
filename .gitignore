@@ -1,12 +1,15 @@
 .env
+.env.production
 *.tgz
 charts/
 .tilt/
 tilt_modules/
 .DS_Store
+*dist/
 
 # Docs (Docusaurus)
 docs/node_modules/
 docs/build/
-docs/.docusaurus/
+docs/.astro/
 docs/.cache-loader/
+npm-debug.log*

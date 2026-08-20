@@ -6,7 +6,7 @@ import remarkBaseLinks from './src/plugins/remark-base-links';
 
 export default defineConfig({
   base: process.env.BASE || '/',
-  site: process.env.SITE,
+  site: process.env.SITE || 'https://packs.nebari.dev',
   integrations: [
     starlight({
       title: 'Nebari Nebi Pack',

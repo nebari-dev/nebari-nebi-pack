@@ -32,6 +32,7 @@ export default defineConfig({
           items: [
             { label: 'Introduction', link: '/' },
             { label: 'Getting started', link: '/getting-started/' },
+            { label: 'Branding', link: '/branding/' },
             { label: 'Local development', link: '/local-development/' },
           ],
         },

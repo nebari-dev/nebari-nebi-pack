@@ -1,0 +1,22 @@
+# This repo is a Helm chart, not a Python package — this file exists only to
+# pin the chart test suite's dependencies so `uv run pytest` behaves the same
+# locally as it does in CI (.github/workflows/test.yaml).
+[project]
+name = "nebari-nebi-pack-tests"
+version = "0"
+description = "Chart render tests for nebari-nebi-pack"
+requires-python = ">=3.11"
+dependencies = []
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3",
+  "pyyaml>=6.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

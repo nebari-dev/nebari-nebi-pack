@@ -33,6 +33,7 @@ https://nebi.example.com/docs/    # the OpenAPI browser
 
 - **[Getting started](/getting-started/)** — install the chart on a Nebari cluster and open Nebi
   for the first time
+- **[Branding](/branding/)** — rebrand the UI title, logo, favicon, and colors at deploy time
 - **[Local development](/local-development/)** — run the chart on a local k3d cluster with Tilt
 
 ## Reference pages

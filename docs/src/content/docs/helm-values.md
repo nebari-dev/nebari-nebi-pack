@@ -128,6 +128,24 @@ in-cluster `keycloak.serviceHost` URL shown above.
 | `persistence.storageClassName` | `""` | Empty uses the cluster default. |
 | `persistence.mountPath` | `/app/data/environments` | Also sets `NEBI_STORAGE_WORKSPACES_DIR`. |
 
+## Branding
+
+Rebrands the Nebi web UI at deploy time. When any field is set the chart renders a
+`<fullname>-branding` ConfigMap, mounts it at `/etc/nebi/branding`, and sets
+`NEBI_BRANDING_CONFIG_PATH`. All fields empty (the default) renders nothing.
+
+| Value | Default | Purpose |
+| --- | --- | --- |
+| `branding.title` | `""` | Browser tab title. Empty uses `Nebi - Environment Management`. |
+| `branding.logoUrl` | `""` | Header logo. Must be same-origin — a root-relative path or a base64 `data:` image URI. External URLs are rejected by the frontend. |
+| `branding.logoUrlDark` | `""` | Optional dark-mode logo. Empty falls back to `logoUrl`. Needs a newer image than the pinned tag. |
+| `branding.faviconUrl` | `""` | Favicon, same URL rules as `logoUrl`. |
+| `branding.theme.light` | `{}` | camelCase CSS token overrides applied to `:root`. |
+| `branding.theme.dark` | `{}` | camelCase CSS token overrides applied to `.dark`. |
+
+Full reference — the token list, URL and value restrictions, and how to verify a deploy — in
+[Branding](/branding/).
+
 ## TLS trust
 
 | Value | Default | Purpose |

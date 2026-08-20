@@ -7,6 +7,27 @@ on:
     branches: [main]
 
 jobs:
+  # Fast chart render tests (no cluster): `helm template` + assertions in
+  # tests/. Kept a separate job from `integration` so it stays green and quick
+  # independent of the Nebari sandbox bootstrap.
+  chart:
+    name: chart render tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Helm
+        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Run chart tests
+        run: uv run pytest -v
+
   integration:
     runs-on: ubuntu-latest
     steps:

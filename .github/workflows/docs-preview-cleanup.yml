@@ -22,8 +22,12 @@ jobs:
         run: |
           set -euo pipefail
           base="https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/pages/projects/${CF_PROJECT}/deployments"
-          ids=$(curl -fsS -H "Authorization: Bearer ${CF_API_TOKEN}" "${base}?env=preview&per_page=100" \
-            | jq -r --arg b "$BRANCH" '.result[] | select(.deployment_trigger.metadata.branch == $b) | .id')
+          # No ?env=preview filter — the deployments list endpoint rejects it
+          # with HTTP 400; the branch filter below already excludes production
+          # deployments (those trigger from main).
+          ids=$(curl -fsS -H "Authorization: Bearer ${CF_API_TOKEN}" "${base}?per_page=100" \
+            | jq -r --arg b "$BRANCH" '.result[] | select(.deployment_trigger.metadata.branch == $b) | .id') \
+            || { echo "::warning::Could not list preview deployments; skipping cleanup."; exit 0; }
           if [ -z "$ids" ]; then
             echo "No preview deployments found for branch '$BRANCH'."
             exit 0

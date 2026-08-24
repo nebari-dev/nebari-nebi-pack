@@ -4,7 +4,7 @@ metadata:
   name: nebi-pack
   namespace: argocd
 spec:
-  project: foundational
+  project: nebari-apps
   source:
     # The sandbox bind-mounts the bootstrapped gitops repo; add-software-pack
     # copies this chart to <gitops>/nebi-pack and envsubst-renders ${GITOPS_DIR}.

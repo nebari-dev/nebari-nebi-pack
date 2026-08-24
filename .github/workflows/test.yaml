@@ -60,6 +60,17 @@ jobs:
 
       - name: Verify deployment and operator-wired OIDC
         run: |
+          # add-software-pack returns as soon as the Application reports
+          # Healthy, which a freshly created app does vacuously before its
+          # first sync creates any resources. Wait for the Deployment to
+          # exist before asserting anything about it (rollout status with a
+          # selector exits 0 on zero matches, so it is not a wait).
+          for i in $(seq 1 60); do
+            kubectl get deploy -n nebi -l app.kubernetes.io/name=nebari-nebi-pack \
+              -o name 2>/dev/null | grep -q . && break
+            echo "Waiting for nebi deployment to be created... (${i}/60)"
+            sleep 5
+          done
           kubectl rollout status deployment -n nebi \
             -l app.kubernetes.io/name=nebari-nebi-pack --timeout=180s
 

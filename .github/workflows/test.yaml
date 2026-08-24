@@ -36,10 +36,8 @@ jobs:
       # Full Nebari platform (NIC + ArgoCD + Keycloak + operator + gateway) so
       # the chart is exercised the way it actually runs: the operator provisions
       # the OIDC client and the gateway enforces auth.
-      - uses: nebari-dev/action-nebari-sandbox@222fcf36fd9a7a6c291f966055a84ad8bb38cfeb # v1
+      - uses: nebari-dev/action-nebari-sandbox@9ac369ebf87ac2ae217504dcbf824c77f70e429a # v3.0.0
         id: sandbox
-        with:
-          profile: platform
 
       - name: Surface KUBECONFIG
         run: echo "KUBECONFIG=${{ steps.sandbox.outputs.kubeconfig }}" >> "$GITHUB_ENV"
@@ -53,7 +51,7 @@ jobs:
           rsync -a --exclude='.git' ./ /tmp/chart/
 
       # Deploy this chart via GitOps and wait for the ArgoCD Application to go Healthy.
-      - uses: nebari-dev/action-nebari-sandbox/add-software-pack@222fcf36fd9a7a6c291f966055a84ad8bb38cfeb # v1
+      - uses: nebari-dev/action-nebari-sandbox/add-software-pack@9ac369ebf87ac2ae217504dcbf824c77f70e429a # v3.0.0
         with:
           gitops-dir: ${{ steps.sandbox.outputs.gitops-dir }}
           app-name: nebi-pack

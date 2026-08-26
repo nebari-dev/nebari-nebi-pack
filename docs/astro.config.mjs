@@ -23,9 +23,15 @@ export default defineConfig({
       title: 'Nebari Nebi Pack',
       description: 'Environment management for Nebari.',
       // Shared Nebari identity (brand colors, fonts, logo, favicon, footer, and
-      // GitHub social link) comes from the @nebari/starlight theme plugin. On the
-      // portal the header logo returns users to the pack catalog.
-      plugins: [nebari({ logoHref: 'https://packs.nebari.dev/' })],
+      // GitHub social link) comes from the @nebari/starlight theme plugin. The
+      // header logo returns users to the pack catalog and the GitHub icon
+      // opens this pack's repository.
+      plugins: [
+        nebari({
+          logoHref: 'https://packs.nebari.dev/',
+          githubHref: 'https://github.com/nebari-dev/nebi-pack',
+        }),
+      ],
       sidebar: [
         {
           label: 'Getting Started',

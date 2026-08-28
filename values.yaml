@@ -8,9 +8,9 @@
 # Set to false when deploying outside of Nebari.
 nebariapp:
   enabled: true
-  # hostname: nebi.example.com  # Required when enabled
+  hostname: '{{ fail "nebariapp.hostname is required when nebariapp.enabled is true" }}'
   service:
-    name: ""  # Defaults to {{ fullname }}
+    name: '{{ include "nebari-nebi-pack.fullname" . | toJson }}'
     port: 80
   routing:
     routes:

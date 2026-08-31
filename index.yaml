@@ -1,0 +1,15 @@
+apiVersion: v1
+entries:
+  nebari-nebi-pack:
+  - apiVersion: v2
+    appVersion: "0.15"
+    created: "2026-08-31T20:38:36.690041119Z"
+    description: A Helm chart for deploying Nebi (environment management platform)
+      on Nebari
+    digest: 65b10e70f33c64e63c93c4fc3b1820b60bc27221654a1fbb2105b2cedb556903
+    name: nebari-nebi-pack
+    type: application
+    urls:
+    - https://github.com/nebari-dev/nebi-pack/releases/download/nebari-nebi-pack-0.1.4/nebari-nebi-pack-0.1.4.tgz
+    version: 0.1.4
+generated: "2026-08-31T20:38:36.688830361Z"

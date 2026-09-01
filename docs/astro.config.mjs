@@ -32,6 +32,7 @@ export default defineConfig({
           githubHref: 'https://github.com/nebari-dev/nebi-pack',
         }),
       ],
+      lastUpdated: true,
       sidebar: [
         {
           label: 'Getting Started',

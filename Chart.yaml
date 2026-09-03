@@ -4,3 +4,7 @@ description: A Helm chart for deploying Nebi (environment management platform) o
 type: application
 version: 0.1.4
 appVersion: "0.15"
+dependencies:
+  - name: nebari-app
+    repository: oci://quay.io/reiemp/charts
+    version: "0.1.2"

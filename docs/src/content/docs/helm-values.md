@@ -140,11 +140,11 @@ Rebrands the Nebi web UI at deploy time. When any field is set the chart renders
 | `branding.logoUrl` | `""` | Header logo. Must be same-origin — a root-relative path or a base64 `data:` image URI. External URLs are rejected by the frontend. |
 | `branding.logoUrlDark` | `""` | Optional dark-mode logo. Empty falls back to `logoUrl`. Needs a newer image than the pinned tag. |
 | `branding.faviconUrl` | `""` | Favicon, same URL rules as `logoUrl`. |
-| `branding.theme.light` | `{}` | camelCase CSS token overrides applied to `:root`. |
-| `branding.theme.dark` | `{}` | camelCase CSS token overrides applied to `.dark`. |
+| `branding.theme.light` | `{}` | Light-mode token overrides, keyed by camelCase Nebari design-system token name (`primary`, `primaryHover`, `header`, …). Applied to `:root`. |
+| `branding.theme.dark` | `{}` | Dark-mode token overrides, same keys. Applied to `.dark`. |
 
-Full reference — the token list, URL and value restrictions, and how to verify a deploy — in
-[Branding](/branding/).
+Full reference — every token and what it paints, a complete worked example, dark-mode guidance,
+URL and value restrictions, and how to verify a deploy — in [Branding](/branding/).
 
 ## TLS trust
 

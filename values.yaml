@@ -179,15 +179,12 @@ branding:
   # CSS custom-property overrides applied at runtime, per color scheme.
   # `light` is written to :root, `dark` to .dark.
   #
-  # Keys are camelCase token names; they are kebab-cased and prefixed to form
-  # the CSS variable (primaryHover -> --color-primary-hover). `radius` maps to
-  # --radius. A key that already starts with `--` is passed through verbatim.
-  #
-  # Overridable tokens (from the frontend's index.css):
-  #   background, foreground, card, cardForeground, popover, popoverForeground,
-  #   primary, primaryForeground, primaryHover, navHover, secondary,
-  #   secondaryForeground, muted, mutedForeground, accent, accentForeground,
-  #   destructive, destructiveForeground, border, input, ring, radius
+  # Keys are camelCase Nebari design-system token names (primary, primaryHover,
+  # primaryForeground, header, headerForeground, card, muted, border, ring,
+  # radius, ...); the frontend converts each to its CSS custom property. A key
+  # that already starts with `--` is passed through verbatim. The full token
+  # list, what each one paints, and which need a newer image are in the docs:
+  # https://packs.nebari.dev/nebi-pack/branding/
   #
   # Values are sanitized in the browser and dropped if they contain CSS
   # injection characters (; < > { } " ' \) or url(...) / expression(...) /
